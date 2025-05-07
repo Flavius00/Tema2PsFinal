@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.MainViewController">
+    <top>
+        <HBox spacing="10" styleClass="nav-bar">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10" />
+            </padding>
+            <Label fx:id="titleLabel" text="Sistem de Administrare Lanț Hotelier" styleClass="nav-title" HBox.hgrow="ALWAYS" />
+            <Button fx:id="hotelButton" text="Hoteluri" styleClass="nav-button" onAction="#switchToHotelView" />
+            <Button fx:id="roomButton" text="Camere" styleClass="nav-button" onAction="#switchToRoomView" />
+            <Button fx:id="reservationButton" text="Rezervări" styleClass="nav-button" onAction="#switchToReservationView" />
+            <Button fx:id="reportButton" text="Rapoarte" styleClass="nav-button" onAction="#switchToReportView" />
+        </HBox>
+    </top>
+    <center>
+        <StackPane fx:id="contentPane" />
+    </center>
+    <bottom>
+        <HBox spacing="10" styleClass="status-bar">
+            <padding>
+                <Insets top="5" right="10" bottom="5" left="10" />
+            </padding>
+            <Label fx:id="statusLabel" />
+        </HBox>
+    </bottom>
+</BorderPane>
