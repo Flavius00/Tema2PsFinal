@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<GridPane xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.ReservationViewController" hgap="10" vgap="10">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+
+    <columnConstraints>
+        <ColumnConstraints percentWidth="30" />
+        <ColumnConstraints percentWidth="70" />
+    </columnConstraints>
+
+    <!-- Reservation Form Section -->
+    <VBox spacing="10" styleClass="content-panel" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.rowSpan="2">
+        <Label text="Gestionare Rezervări" styleClass="form-title" />
+
+        <Label text="Hotel:" styleClass="form-label" />
+        <ComboBox fx:id="hotelComboBox" promptText="Selectați hotel" maxWidth="Infinity" />
+
+        <Label text="Cameră:" styleClass="form-label" />
+        <ComboBox fx:id="roomComboBox" promptText="Selectați cameră" maxWidth="Infinity" />
+
+        <Label text="Data check-in:" styleClass="form-label" />
+        <DatePicker fx:id="checkInDatePicker" promptText="Selectați data check-in" maxWidth="Infinity" />
+
+        <Label text="Data check-out:" styleClass="form-label" />
+        <DatePicker fx:id="checkOutDatePicker" promptText="Selectați data check-out" maxWidth="Infinity" />
+
+        <Label text="Nume client:" styleClass="form-label" />
+        <TextField fx:id="customerNameTextField" promptText="Introduceți numele clientului" />
+
+        <Label text="Email client:" styleClass="form-label" />
+        <TextField fx:id="customerEmailTextField" promptText="Introduceți email-ul clientului" />
+
+        <Label text="Telefon client:" styleClass="form-label" />
+        <TextField fx:id="customerPhoneTextField" promptText="Introduceți telefonul clientului" />
+
+        <Label text="Preț total:" styleClass="form-label" />
+        <TextField fx:id="totalPriceTextField" promptText="Preț total" disable="true" />
+
+        <Label text="Status plată:" styleClass="form-label" />
+        <ComboBox fx:id="paymentStatusComboBox" promptText="Selectați status plată" maxWidth="Infinity" />
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Anulează" onAction="#handleClearButton" styleClass="button-cancel" />
+            <Button text="Salvează" onAction="#handleSaveButton" styleClass="button-save" />
+            <Button text="Șterge" onAction="#handleDeleteButton" styleClass="button-delete" />
+        </HBox>
+
+        <Label fx:id="statusLabel" styleClass="success-message" />
+    </VBox>
+
+    <!-- Reservation List Section -->
+    <VBox spacing="10" styleClass="content-panel" GridPane.columnIndex="1" GridPane.rowIndex="0">
+        <Label text="Lista Rezervări" styleClass="form-title" />
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Filtrare după dată:" />
+            <DatePicker fx:id="filterDatePicker" />
+            <Button text="Filtrează" onAction="#handleDateFilterButton" />
+
+            <Separator orientation="VERTICAL" />
+
+            <Label text="Căutare client:" />
+            <TextField fx:id="searchCustomerTextField" promptText="Introduceți nume client" />
+            <Button text="Caută" onAction="#handleSearchButton" />
+
+            <Button text="Resetează" onAction="#handleResetFiltersButton" />
+        </HBox>
+
+        <TableView fx:id="reservationTableView" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="reservationIdColumn" text="ID" prefWidth="50" />
+                <TableColumn fx:id="customerNameColumn" text="Client" prefWidth="150" />
+                <TableColumn fx:id="roomInfoColumn" text="Cameră" prefWidth="100" />
+                <TableColumn fx:id="hotelNameColumn" text="Hotel" prefWidth="150" />
+                <TableColumn fx:id="checkInColumn" text="Check-in" prefWidth="120" />
+                <TableColumn fx:id="checkOutColumn" text="Check-out" prefWidth="120" />
+                <TableColumn fx:id="totalPriceColumn" text="Preț total" prefWidth="100" />
+                <TableColumn fx:id="paymentStatusColumn" text="Status plată" prefWidth="100" />
+            </columns>
+        </TableView>
+    </VBox>
+</GridPane>

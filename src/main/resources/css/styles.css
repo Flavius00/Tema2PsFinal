@@ -1,0 +1,165 @@
+/* Application-wide styles */
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: #f5f5f5;
+}
+
+/* Navigation bar styles */
+.nav-bar {
+    -fx-background-color: #2c3e50;
+    -fx-padding: 10px;
+    -fx-spacing: 10px;
+}
+
+.nav-title {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-padding: 5px 0;
+}
+
+.nav-button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 15px;
+    -fx-background-radius: 5px;
+}
+
+.nav-button:hover {
+    -fx-background-color: #2980b9;
+    -fx-cursor: hand;
+}
+
+/* Status bar styles */
+.status-bar {
+    -fx-background-color: #ecf0f1;
+    -fx-padding: 5px;
+    -fx-border-width: 1px 0 0 0;
+    -fx-border-color: #bdc3c7;
+}
+
+/* Content panel styles */
+.content-panel {
+    -fx-background-color: white;
+    -fx-padding: 15px;
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
+}
+
+/* Form styles */
+.form-container {
+    -fx-spacing: 10px;
+    -fx-padding: 15px;
+}
+
+.form-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 10px 0;
+}
+
+.form-label {
+    -fx-font-weight: bold;
+}
+
+.form-field {
+    -fx-padding: 8px;
+    -fx-background-radius: 3px;
+    -fx-border-radius: 3px;
+    -fx-border-width: 1px;
+    -fx-border-color: #bdc3c7;
+}
+
+/* Button styles */
+.button {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 15px;
+    -fx-background-radius: 3px;
+}
+
+.button:hover {
+    -fx-background-color: #2980b9;
+    -fx-cursor: hand;
+}
+
+.button-save {
+    -fx-background-color: #2ecc71;
+}
+
+.button-save:hover {
+    -fx-background-color: #27ae60;
+}
+
+.button-delete {
+    -fx-background-color: #e74c3c;
+}
+
+.button-delete:hover {
+    -fx-background-color: #c0392b;
+}
+
+.button-cancel {
+    -fx-background-color: #95a5a6;
+}
+
+.button-cancel:hover {
+    -fx-background-color: #7f8c8d;
+}
+
+/* Table styles */
+.table-view {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header {
+    -fx-background-color: #34495e;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 10px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-alignment: center-left;
+}
+
+.table-row-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #ecf0f1;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #f9f9f9;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #3498db;
+}
+
+.table-row-cell:selected .text {
+    -fx-fill: white;
+}
+
+/* Helper classes */
+.padding-10 {
+    -fx-padding: 10px;
+}
+
+.margin-10 {
+    -fx-margin: 10px;
+}
+
+.success-message {
+    -fx-text-fill: #2ecc71;
+    -fx-font-weight: bold;
+}
+
+.error-message {
+    -fx-text-fill: #e74c3c;
+    -fx-font-weight: bold;
+}

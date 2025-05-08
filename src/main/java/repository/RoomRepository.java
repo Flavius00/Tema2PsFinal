@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -259,20 +260,31 @@ public class RoomRepository {
 
     public List<String> findAllRoomTypes() {
         List<String> types = new ArrayList<>();
-        String sql = "SELECT DISTINCT room_type FROM camera ORDER BY room_type";
 
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try {
+            DatabaseMetaData metaData = DBConnection.getConnection().getMetaData();
+            ResultSet columns = metaData.getColumns(null, null, "camera", "room_type");
 
-            while (rs.next()) {
-                String type = rs.getString("room_type");
-                if (type != null && !type.isEmpty()) {
-                    types.add(type);
+            if (columns.next()) {
+                String sql = "SELECT DISTINCT room_type FROM camera ORDER BY room_type";
+
+                try (Connection conn = DBConnection.getConnection();
+                     PreparedStatement stmt = conn.prepareStatement(sql);
+                     ResultSet rs = stmt.executeQuery()) {
+
+                    while (rs.next()) {
+                        String type = rs.getString("room_type");
+                        if (type != null && !type.isEmpty()) {
+                            types.add(type);
+                        }
+                    }
                 }
+            } else {
+                types.addAll(Arrays.asList("Single", "Double", "Twin", "Suite", "Deluxe"));
             }
         } catch (SQLException e) {
             logger.error("Error fetching all room types", e);
+            types.addAll(Arrays.asList("Single", "Double", "Twin", "Suite", "Deluxe"));
         }
 
         return types;

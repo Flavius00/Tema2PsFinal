@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<GridPane xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.HotelViewController" hgap="10" vgap="10">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+
+    <columnConstraints>
+        <ColumnConstraints percentWidth="30" />
+        <ColumnConstraints percentWidth="70" />
+    </columnConstraints>
+
+    <!-- Hotel Form Section -->
+    <VBox spacing="10" styleClass="content-panel" GridPane.columnIndex="0" GridPane.rowIndex="0">
+        <Label text="Gestionare Hoteluri" styleClass="form-title" />
+
+        <Label text="Lanț hotelier:" styleClass="form-label" />
+        <ComboBox fx:id="chainComboBox" promptText="Selectați lanț hotelier" maxWidth="Infinity" />
+
+        <Label text="Nume hotel:" styleClass="form-label" />
+        <TextField fx:id="nameTextField" promptText="Introduceți numele hotelului" />
+
+        <Label text="Telefon:" styleClass="form-label" />
+        <TextField fx:id="phoneTextField" promptText="Introduceți numărul de telefon" />
+
+        <Label text="Email:" styleClass="form-label" />
+        <TextField fx:id="emailTextField" promptText="Introduceți adresa de email" />
+
+        <Label text="Facilități:" styleClass="form-label" />
+        <TextArea fx:id="amenitiesTextArea" promptText="Introduceți facilitățile hotelului" prefHeight="60" />
+
+        <Separator />
+
+        <Label text="Locația hotelului" styleClass="form-title" />
+
+        <Label text="Țară:" styleClass="form-label" />
+        <TextField fx:id="countryTextField" promptText="Introduceți țara" />
+
+        <Label text="Oraș:" styleClass="form-label" />
+        <TextField fx:id="cityTextField" promptText="Introduceți orașul" />
+
+        <Label text="Strada:" styleClass="form-label" />
+        <TextField fx:id="streetTextField" promptText="Introduceți strada" />
+
+        <Label text="Număr:" styleClass="form-label" />
+        <TextField fx:id="numberTextField" promptText="Introduceți numărul" />
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Anulează" onAction="#handleClearButton" styleClass="button-cancel" />
+            <Button text="Salvează" onAction="#handleSaveButton" styleClass="button-save" />
+            <Button text="Șterge" onAction="#handleDeleteButton" styleClass="button-delete" />
+        </HBox>
+
+        <Label fx:id="statusLabel" styleClass="success-message" />
+    </VBox>
+
+    <!-- Hotel List Section -->
+    <VBox spacing="10" styleClass="content-panel" GridPane.columnIndex="1" GridPane.rowIndex="0">
+        <Label text="Lista Hoteluri" styleClass="form-title" />
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <ComboBox fx:id="filterChainComboBox" promptText="Filtrare după lanț hotelier" />
+            <Button text="Filtrează" onAction="#handleFilterButton" />
+            <Button text="Resetează" onAction="#handleResetButton" />
+        </HBox>
+
+        <TableView fx:id="hotelTableView" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="idColumn" text="ID" prefWidth="50" />
+                <TableColumn fx:id="nameColumn" text="Nume" prefWidth="150" />
+                <TableColumn fx:id="locationColumn" text="Locație" prefWidth="150" />
+                <TableColumn fx:id="phoneColumn" text="Telefon" prefWidth="120" />
+                <TableColumn fx:id="emailColumn" text="Email" prefWidth="150" />
+                <TableColumn fx:id="chainColumn" text="Lanț" prefWidth="100" />
+            </columns>
+        </TableView>
+    </VBox>
+</GridPane>

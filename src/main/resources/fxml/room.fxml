@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<GridPane xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.RoomViewController" hgap="10" vgap="10">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+
+    <columnConstraints>
+        <ColumnConstraints percentWidth="30" />
+        <ColumnConstraints percentWidth="70" />
+    </columnConstraints>
+
+    <!-- Room Form Section -->
+    <VBox spacing="10" styleClass="content-panel" GridPane.columnIndex="0" GridPane.rowIndex="0">
+        <Label text="Gestionare Camere" styleClass="form-title" />
+
+        <Label text="Hotel:" styleClass="form-label" />
+        <ComboBox fx:id="hotelComboBox" promptText="Selectați hotel" maxWidth="Infinity" />
+
+        <Label text="Număr cameră:" styleClass="form-label" />
+        <TextField fx:id="roomNumberTextField" promptText="Introduceți numărul camerei" />
+
+        <Label text="Tip cameră:" styleClass="form-label" />
+        <ComboBox fx:id="roomTypeComboBox" promptText="Selectați tipul camerei" maxWidth="Infinity" editable="true" />
+
+        <Label text="Capacitate (persoane):" styleClass="form-label" />
+        <Spinner fx:id="capacitySpinner" min="1" max="10" initialValue="2" editable="true" maxWidth="Infinity" />
+
+        <Label text="Preț per noapte:" styleClass="form-label" />
+        <TextField fx:id="priceTextField" promptText="Introduceți prețul per noapte" />
+
+        <Label text="Facilități:" styleClass="form-label" />
+        <TextArea fx:id="amenitiesTextArea" promptText="Introduceți facilitățile camerei" prefHeight="60" />
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Anulează" onAction="#handleClearButton" styleClass="button-cancel" />
+            <Button text="Salvează" onAction="#handleSaveButton" styleClass="button-save" />
+            <Button text="Șterge" onAction="#handleDeleteButton" styleClass="button-delete" />
+        </HBox>
+
+        <Label fx:id="statusLabel" styleClass="success-message" />
+    </VBox>
+
+    <!-- Room List Section -->
+    <VBox spacing="10" styleClass="content-panel" GridPane.columnIndex="1" GridPane.rowIndex="0">
+        <Label text="Lista Camere" styleClass="form-title" />
+
+        <TitledPane text="Filtrare camere" expanded="false">
+            <VBox spacing="10">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Preț minim:" />
+                    <TextField fx:id="minPriceTextField" prefWidth="100" />
+                    <Label text="Preț maxim:" />
+                    <TextField fx:id="maxPriceTextField" prefWidth="100" />
+                    <Button text="Filtrează după preț" onAction="#handlePriceFilterButton" />
+                </HBox>
+
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Verificare disponibilitate la data:" />
+                    <DatePicker fx:id="availabilityDatePicker" />
+                    <Button text="Verifică disponibilitate" onAction="#handleAvailabilityFilterButton" />
+                </HBox>
+
+                <Button text="Resetează filtre" onAction="#handleResetFiltersButton" />
+            </VBox>
+        </TitledPane>
+
+        <TableView fx:id="roomTableView" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="roomIdColumn" text="ID" prefWidth="50" />
+                <TableColumn fx:id="roomNumberColumn" text="Nr. cameră" prefWidth="100" />
+                <TableColumn fx:id="roomTypeColumn" text="Tip" prefWidth="100" />
+                <TableColumn fx:id="capacityColumn" text="Capacitate" prefWidth="100" />
+                <TableColumn fx:id="priceColumn" text="Preț/noapte" prefWidth="120" />
+                <TableColumn fx:id="roomAmenitiesColumn" text="Facilități" prefWidth="250" />
+            </columns>
+        </TableView>
+    </VBox>
+</GridPane>

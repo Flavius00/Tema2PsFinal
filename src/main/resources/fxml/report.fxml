@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.ReportViewController" spacing="20">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
+
+    <Label text="Generare Rapoarte" styleClass="form-title" style="-fx-font-size: 24px;" />
+
+    <GridPane hgap="20" vgap="20">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="50" />
+            <ColumnConstraints percentWidth="50" />
+        </columnConstraints>
+
+        <!-- Raport Rezervări -->
+        <VBox spacing="10" styleClass="content-panel" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Raport Rezervări pentru o Zi" styleClass="form-title" />
+
+            <Label text="Selectați hotelul:" styleClass="form-label" />
+            <ComboBox fx:id="hotelReservationsComboBox" promptText="Selectați hotel" maxWidth="Infinity" />
+
+            <Label text="Selectați data:" styleClass="form-label" />
+            <DatePicker fx:id="reservationDatePicker" promptText="Selectați data" maxWidth="Infinity" />
+
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="Exportă CSV" onAction="#handleExportReservationsCsvButton" prefWidth="150" />
+                <Button text="Exportă DOC" onAction="#handleExportReservationsDocButton" prefWidth="150" />
+            </HBox>
+        </VBox>
+
+        <!-- Raport Camere Disponibile -->
+        <VBox spacing="10" styleClass="content-panel" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Raport Camere Disponibile" styleClass="form-title" />
+
+            <Label text="Selectați hotelul:" styleClass="form-label" />
+            <ComboBox fx:id="hotelRoomsComboBox" promptText="Selectați hotel" maxWidth="Infinity" />
+
+            <Label text="Data început:" styleClass="form-label" />
+            <DatePicker fx:id="startDatePicker" promptText="Selectați data de început" maxWidth="Infinity" />
+
+            <Label text="Data sfârșit:" styleClass="form-label" />
+            <DatePicker fx:id="endDatePicker" promptText="Selectați data de sfârșit" maxWidth="Infinity" />
+
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="Exportă CSV" onAction="#handleExportRoomsCsvButton" prefWidth="150" />
+                <Button text="Exportă DOC" onAction="#handleExportRoomsDocButton" prefWidth="150" />
+            </HBox>
+        </VBox>
+
+        <!-- Status și informații -->
+        <VBox spacing="10" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" alignment="CENTER">
+            <Label fx:id="statusLabel" styleClass="success-message" />
+
+            <TextArea fx:id="instructionsTextArea" prefHeight="100" editable="false" wrapText="true">
+                <text>Instrucțiuni de generare rapoarte:
+
+                    1. Pentru a genera un raport de rezervări pentru o zi:
+                    - Selectați hotelul
+                    - Selectați data dorită
+                    - Apăsați butonul "Exportă CSV" sau "Exportă DOC"
+
+                    2. Pentru a genera un raport de camere disponibile:
+                    - Selectați hotelul
+                    - Selectați intervalul de date dorit (data început și data sfârșit)
+                    - Apăsați butonul "Exportă CSV" sau "Exportă DOC"
+                </text>
+            </TextArea>
+        </VBox>
+    </GridPane>
+</VBox>
