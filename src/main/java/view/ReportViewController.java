@@ -6,8 +6,11 @@ import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import model.Hotel;
 import viewmodel.ReportViewModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReportViewController {
+    private static final Logger logger = LoggerFactory.getLogger(ReportViewController.class);
 
     private ReportViewModel viewModel;
 
@@ -27,6 +30,18 @@ public class ReportViewController {
     private DatePicker endDatePicker;
 
     @FXML
+    private Button exportReservationsCsvButton;
+
+    @FXML
+    private Button exportReservationsDocButton;
+
+    @FXML
+    private Button exportRoomsCsvButton;
+
+    @FXML
+    private Button exportRoomsDocButton;
+
+    @FXML
     private Label statusLabel;
 
     @FXML
@@ -35,6 +50,7 @@ public class ReportViewController {
     @FXML
     private void initialize() {
         viewModel = new ReportViewModel();
+        logger.info("Inițializare ReportViewController");
 
         // Setup bindings for form fields
         reservationDatePicker.valueProperty().bindBidirectional(viewModel.reportDateProperty());
@@ -75,43 +91,47 @@ public class ReportViewController {
                 hotelReservationsComboBox.setValue(newVal);
             }
         });
-    }
 
-    @FXML
-    private void handleExportReservationsCsvButton() {
-        validateHotelSelection();
-        viewModel.exportReservationsToCsv(getStage());
-    }
+        // Setăm stage-ul în viewModel pentru a permite deschiderea dialog-urilor
+        // Acest lucru trebuie făcut după ce componenta este adăugată la scenă
+        // Adăugăm un listener pentru a apela setStage atunci când componenta este vizibilă
+        statusLabel.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                // Apelăm acest cod după ce scena este creată și atașată la o fereastră
+                newScene.windowProperty().addListener((obsWindow, oldWindow, newWindow) -> {
+                    if (newWindow != null) {
+                        viewModel.setStage((Stage) newWindow);
+                        logger.info("Stage setat în ReportViewModel");
+                    }
+                });
+            }
+        });
 
-    @FXML
-    private void handleExportReservationsDocButton() {
-        validateHotelSelection();
-        viewModel.exportReservationsToDoc(getStage());
-    }
+        // Setup action bindings pentru butoane
+        exportReservationsCsvButton.disableProperty().bind(
+                viewModel.selectedHotelProperty().isNull().or(viewModel.reportDateProperty().isNull())
+        );
+        exportReservationsCsvButton.onActionProperty().bind(viewModel.exportReservationsCsvActionProperty());
 
-    @FXML
-    private void handleExportRoomsCsvButton() {
-        validateHotelSelection();
-        viewModel.exportAvailableRoomsToCsv(getStage());
-    }
+        exportReservationsDocButton.disableProperty().bind(
+                viewModel.selectedHotelProperty().isNull().or(viewModel.reportDateProperty().isNull())
+        );
+        exportReservationsDocButton.onActionProperty().bind(viewModel.exportReservationsDocActionProperty());
 
-    @FXML
-    private void handleExportRoomsDocButton() {
-        validateHotelSelection();
-        viewModel.exportAvailableRoomsToDoc(getStage());
-    }
+        exportRoomsCsvButton.disableProperty().bind(
+                viewModel.selectedHotelProperty().isNull()
+                        .or(viewModel.startDateProperty().isNull())
+                        .or(viewModel.endDateProperty().isNull())
+        );
+        exportRoomsCsvButton.onActionProperty().bind(viewModel.exportRoomsCsvActionProperty());
 
-    private void validateHotelSelection() {
-        if (viewModel.selectedHotelProperty().get() == null) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Atenție");
-            alert.setHeaderText("Hotel neselectat");
-            alert.setContentText("Vă rugăm să selectați un hotel înainte de a genera raportul.");
-            alert.showAndWait();
-        }
-    }
+        exportRoomsDocButton.disableProperty().bind(
+                viewModel.selectedHotelProperty().isNull()
+                        .or(viewModel.startDateProperty().isNull())
+                        .or(viewModel.endDateProperty().isNull())
+        );
+        exportRoomsDocButton.onActionProperty().bind(viewModel.exportRoomsDocActionProperty());
 
-    private Stage getStage() {
-        return (Stage) statusLabel.getScene().getWindow();
+        logger.info("Inițializare ReportViewController finalizată");
     }
 }

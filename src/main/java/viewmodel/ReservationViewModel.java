@@ -9,6 +9,8 @@ import service.RoomService;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -49,6 +51,14 @@ public class ReservationViewModel {
     private final BooleanProperty saveButtonDisabled = new SimpleBooleanProperty(true);
     private final StringProperty statusMessage = new SimpleStringProperty("");
 
+    // Action properties pentru butoane
+    private final ObjectProperty<EventHandler<ActionEvent>> saveAction = new SimpleObjectProperty<>();
+    private final ObjectProperty<EventHandler<ActionEvent>> deleteAction = new SimpleObjectProperty<>();
+    private final ObjectProperty<EventHandler<ActionEvent>> clearAction = new SimpleObjectProperty<>();
+    private final ObjectProperty<EventHandler<ActionEvent>> dateFilterAction = new SimpleObjectProperty<>();
+    private final ObjectProperty<EventHandler<ActionEvent>> searchAction = new SimpleObjectProperty<>();
+    private final ObjectProperty<EventHandler<ActionEvent>> resetFiltersAction = new SimpleObjectProperty<>();
+
     public ReservationViewModel() {
         this.reservationService = new ReservationService();
         this.roomService = new RoomService();
@@ -65,6 +75,21 @@ public class ReservationViewModel {
                 .or(selectedRoom.isNull())
                 .or(checkInDate.isNull())
                 .or(checkOutDate.isNull()));
+
+        // Setăm acțiunile pentru butoane
+        saveAction.set(event -> saveReservation());
+        deleteAction.set(event -> deleteReservation());
+        clearAction.set(event -> clearReservationFields());
+        dateFilterAction.set(event -> filterReservationsByDate());
+        searchAction.set(event -> searchReservationsByCustomerName());
+        resetFiltersAction.set(event -> {
+            searchCustomerName.set("");
+            if (selectedHotel.get() != null) {
+                loadReservationsByHotelId(selectedHotel.get().getId());
+            } else {
+                loadAllReservations();
+            }
+        });
 
         // Add listener to selected hotel property to load rooms for that hotel
         selectedHotel.addListener((observable, oldValue, newValue) -> {
@@ -186,6 +211,7 @@ public class ReservationViewModel {
             totalPrice.set(0.0);
         }
     }
+
     public void loadHotels() {
         List<Hotel> hotelList = hotelService.getAllHotels();
         hotels.setAll(hotelList);
@@ -372,11 +398,36 @@ public class ReservationViewModel {
         return searchCustomerName;
     }
 
+    public StringProperty statusMessageProperty() {
+        return statusMessage;
+    }
+
     public BooleanProperty saveButtonDisabledProperty() {
         return saveButtonDisabled;
     }
 
-    public StringProperty statusMessageProperty() {
-        return statusMessage;
+    // Getters for action properties
+    public ObjectProperty<EventHandler<ActionEvent>> saveActionProperty() {
+        return saveAction;
+    }
+
+    public ObjectProperty<EventHandler<ActionEvent>> deleteActionProperty() {
+        return deleteAction;
+    }
+
+    public ObjectProperty<EventHandler<ActionEvent>> clearActionProperty() {
+        return clearAction;
+    }
+
+    public ObjectProperty<EventHandler<ActionEvent>> dateFilterActionProperty() {
+        return dateFilterAction;
+    }
+
+    public ObjectProperty<EventHandler<ActionEvent>> searchActionProperty() {
+        return searchAction;
+    }
+
+    public ObjectProperty<EventHandler<ActionEvent>> resetFiltersActionProperty() {
+        return resetFiltersAction;
     }
 }

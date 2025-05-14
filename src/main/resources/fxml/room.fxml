@@ -37,9 +37,9 @@
         <TextArea fx:id="amenitiesTextArea" promptText="Introduceți facilitățile camerei" prefHeight="60" />
 
         <HBox spacing="10" alignment="CENTER_RIGHT">
-            <Button text="Anulează" onAction="#handleClearButton" styleClass="button-cancel" />
-            <Button text="Salvează" onAction="#handleSaveButton" styleClass="button-save" />
-            <Button text="Șterge" onAction="#handleDeleteButton" styleClass="button-delete" />
+            <Button fx:id="clearButton" text="Anulează" styleClass="button-cancel" />
+            <Button fx:id="saveButton" text="Salvează" styleClass="button-save" />
+            <Button fx:id="deleteButton" text="Șterge" styleClass="button-delete" />
         </HBox>
 
         <Label fx:id="statusLabel" styleClass="success-message" />
@@ -56,16 +56,16 @@
                     <TextField fx:id="minPriceTextField" prefWidth="100" />
                     <Label text="Preț maxim:" />
                     <TextField fx:id="maxPriceTextField" prefWidth="100" />
-                    <Button text="Filtrează după preț" onAction="#handlePriceFilterButton" />
+                    <Button fx:id="priceFilterButton" text="Filtrează după preț" />
                 </HBox>
 
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label text="Verificare disponibilitate la data:" />
                     <DatePicker fx:id="availabilityDatePicker" />
-                    <Button text="Verifică disponibilitate" onAction="#handleAvailabilityFilterButton" />
+                    <Button fx:id="availabilityFilterButton" text="Verifică disponibilitate" />
                 </HBox>
 
-                <Button text="Resetează filtre" onAction="#handleResetFiltersButton" />
+                <Button fx:id="resetFiltersButton" text="Resetează filtre" />
             </VBox>
         </TitledPane>
 

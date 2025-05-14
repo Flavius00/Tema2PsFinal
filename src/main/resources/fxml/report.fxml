@@ -28,8 +28,8 @@
             <DatePicker fx:id="reservationDatePicker" promptText="Selectați data" maxWidth="Infinity" />
 
             <HBox spacing="10" alignment="CENTER">
-                <Button text="Exportă CSV" onAction="#handleExportReservationsCsvButton" prefWidth="150" />
-                <Button text="Exportă DOC" onAction="#handleExportReservationsDocButton" prefWidth="150" />
+                <Button fx:id="exportReservationsCsvButton" text="Exportă CSV" prefWidth="150" />
+                <Button fx:id="exportReservationsDocButton" text="Exportă DOC" prefWidth="150" />
             </HBox>
         </VBox>
 
@@ -47,8 +47,8 @@
             <DatePicker fx:id="endDatePicker" promptText="Selectați data de sfârșit" maxWidth="Infinity" />
 
             <HBox spacing="10" alignment="CENTER">
-                <Button text="Exportă CSV" onAction="#handleExportRoomsCsvButton" prefWidth="150" />
-                <Button text="Exportă DOC" onAction="#handleExportRoomsDocButton" prefWidth="150" />
+                <Button fx:id="exportRoomsCsvButton" text="Exportă CSV" prefWidth="150" />
+                <Button fx:id="exportRoomsDocButton" text="Exportă DOC" prefWidth="150" />
             </HBox>
         </VBox>
 

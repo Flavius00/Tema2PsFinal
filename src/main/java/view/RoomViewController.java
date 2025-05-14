@@ -7,10 +7,13 @@ import javafx.util.StringConverter;
 import model.Hotel;
 import model.Room;
 import viewmodel.RoomViewModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 
 public class RoomViewController {
+    private static final Logger logger = LoggerFactory.getLogger(RoomViewController.class);
 
     private RoomViewModel viewModel;
 
@@ -40,6 +43,24 @@ public class RoomViewController {
 
     @FXML
     private DatePicker availabilityDatePicker;
+
+    @FXML
+    private Button saveButton;
+
+    @FXML
+    private Button deleteButton;
+
+    @FXML
+    private Button clearButton;
+
+    @FXML
+    private Button priceFilterButton;
+
+    @FXML
+    private Button availabilityFilterButton;
+
+    @FXML
+    private Button resetFiltersButton;
 
     @FXML
     private Label statusLabel;
@@ -130,11 +151,10 @@ public class RoomViewController {
                     }
                 });
         maxPriceTextField.textProperty().bindBidirectional(viewModel.maxPriceProperty(),
-                new javafx.util.StringConverter<Number>() {
-                    @Override
-                    public String toString(Number object) {
-                        return object == null ? "" : object.toString();
-                    }
+                new javafx.util.StringConverter<Number>() {@Override
+                public String toString(Number object) {
+                    return object == null ? "" : object.toString();
+                }
 
                     @Override
                     public Number fromString(String string) {
@@ -149,6 +169,25 @@ public class RoomViewController {
                     }
                 });
         availabilityDatePicker.valueProperty().bindBidirectional(viewModel.availabilityDateProperty());
+
+        // Setup action bindings pentru butoane
+        saveButton.disableProperty().bind(viewModel.saveButtonDisabledProperty());
+        saveButton.onActionProperty().bind(viewModel.saveActionProperty());
+
+        deleteButton.disableProperty().bind(viewModel.selectedRoomProperty().isNull());
+        deleteButton.onActionProperty().bind(viewModel.deleteActionProperty());
+
+        clearButton.onActionProperty().bind(viewModel.clearActionProperty());
+
+        priceFilterButton.disableProperty().bind(viewModel.selectedHotelProperty().isNull());
+        priceFilterButton.onActionProperty().bind(viewModel.priceFilterActionProperty());
+
+        availabilityFilterButton.disableProperty().bind(
+                viewModel.selectedHotelProperty().isNull().or(viewModel.availabilityDateProperty().isNull())
+        );
+        availabilityFilterButton.onActionProperty().bind(viewModel.availabilityFilterActionProperty());
+
+        resetFiltersButton.onActionProperty().bind(viewModel.resetFiltersActionProperty());
 
         // Setup table columns
         roomIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -184,51 +223,5 @@ public class RoomViewController {
         // Setup room type combo box
         roomTypeComboBox.setItems(viewModel.getRoomTypes());
         roomTypeComboBox.valueProperty().bindBidirectional(viewModel.roomTypeProperty());
-    }
-
-    @FXML
-    private void handleSaveButton() {
-        // Asigurăm că valoarea curentă din spinner este setată în model înainte de salvare
-        viewModel.capacityProperty().set(capacitySpinner.getValue());
-        viewModel.saveRoom();
-    }
-
-    @FXML
-    private void handleDeleteButton() {
-        if (roomTableView.getSelectionModel().getSelectedItem() != null) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirmare ștergere");
-            alert.setHeaderText("Șterge cameră");
-            alert.setContentText("Sigur doriți să ștergeți camera selectată?");
-
-            alert.showAndWait().ifPresent(response -> {
-                if (response == ButtonType.OK) {
-                    viewModel.deleteRoom();
-                }
-            });
-        } else {
-            statusLabel.setText("Selectați o cameră pentru a o șterge");
-        }
-    }
-
-    @FXML
-    private void handleClearButton() {
-        viewModel.clearRoomFields();
-        roomTableView.getSelectionModel().clearSelection();
-    }
-
-    @FXML
-    private void handlePriceFilterButton() {
-        viewModel.filterRoomsByPrice();
-    }
-
-    @FXML
-    private void handleAvailabilityFilterButton() {
-        viewModel.filterRoomsByAvailability();
-    }
-
-    @FXML
-    private void handleResetFiltersButton() {
-        viewModel.clearFilters();
     }
 }

@@ -56,6 +56,24 @@ public class ReservationViewController {
     private Label statusLabel;
 
     @FXML
+    private Button saveButton;
+
+    @FXML
+    private Button deleteButton;
+
+    @FXML
+    private Button clearButton;
+
+    @FXML
+    private Button dateFilterButton;
+
+    @FXML
+    private Button searchButton;
+
+    @FXML
+    private Button resetFiltersButton;
+
+    @FXML
     private TableView<Reservation> reservationTableView;
 
     @FXML
@@ -103,6 +121,25 @@ public class ReservationViewController {
 
         // Setup search field
         searchCustomerTextField.textProperty().bindBidirectional(viewModel.searchCustomerNameProperty());
+
+        // Setup action bindings pentru butoane
+        saveButton.disableProperty().bind(viewModel.saveButtonDisabledProperty());
+        saveButton.onActionProperty().bind(viewModel.saveActionProperty());
+
+        deleteButton.disableProperty().bind(viewModel.selectedReservationProperty().isNull());
+        deleteButton.onActionProperty().bind(viewModel.deleteActionProperty());
+
+        clearButton.onActionProperty().bind(viewModel.clearActionProperty());
+
+        dateFilterButton.disableProperty().bind(
+                viewModel.selectedHotelProperty().isNull().or(viewModel.filterDateProperty().isNull())
+        );
+        dateFilterButton.onActionProperty().bind(viewModel.dateFilterActionProperty());
+
+        searchButton.disableProperty().bind(viewModel.searchCustomerNameProperty().isEmpty());
+        searchButton.onActionProperty().bind(viewModel.searchActionProperty());
+
+        resetFiltersButton.onActionProperty().bind(viewModel.resetFiltersActionProperty());
 
         // Setup table columns
         reservationIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -207,55 +244,5 @@ public class ReservationViewController {
 
         // Încarcă rezervările la inițializare
         viewModel.loadAllReservations();
-    }
-
-    @FXML
-    private void handleSaveButton() {
-        viewModel.saveReservation();
-    }
-
-    @FXML
-    private void handleDeleteButton() {
-        if (reservationTableView.getSelectionModel().getSelectedItem() != null) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirmare ștergere");
-            alert.setHeaderText("Șterge rezervare");
-            alert.setContentText("Sigur doriți să ștergeți rezervarea selectată?");
-
-            alert.showAndWait().ifPresent(response -> {
-                if (response == ButtonType.OK) {
-                    viewModel.deleteReservation();
-                }
-            });
-        } else {
-            statusLabel.setText("Selectați o rezervare pentru a o șterge");
-        }
-    }
-
-    @FXML
-    private void handleClearButton() {
-        viewModel.clearReservationFields();
-        reservationTableView.getSelectionModel().clearSelection();
-    }
-
-    @FXML
-    private void handleDateFilterButton() {
-        viewModel.filterReservationsByDate();
-    }
-
-    @FXML
-    private void handleSearchButton() {
-        viewModel.searchReservationsByCustomerName();
-    }
-
-    @FXML
-    private void handleResetFiltersButton() {
-        searchCustomerTextField.clear();
-        if (hotelComboBox.getValue() != null) {
-            viewModel.loadReservationsByHotelId(hotelComboBox.getValue().getId());
-        } else {
-            // Încărcăm toate rezervările dacă nu e selectat un hotel
-            viewModel.loadAllReservations();
-        }
     }
 }

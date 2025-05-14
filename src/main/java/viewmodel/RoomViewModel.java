@@ -7,14 +7,18 @@ import service.RoomService;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RoomViewModel {
+    private static final Logger logger = LoggerFactory.getLogger(RoomViewModel.class);
     private final RoomService roomService;
     private final HotelService hotelService;
 
@@ -41,6 +45,14 @@ public class RoomViewModel {
     private final BooleanProperty saveButtonDisabled = new SimpleBooleanProperty(true);
     private final StringProperty statusMessage = new SimpleStringProperty("");
 
+    // Action properties pentru butoane
+    private final ObjectProperty<EventHandler<ActionEvent>> saveAction = new SimpleObjectProperty<>();
+    private final ObjectProperty<EventHandler<ActionEvent>> deleteAction = new SimpleObjectProperty<>();
+    private final ObjectProperty<EventHandler<ActionEvent>> clearAction = new SimpleObjectProperty<>();
+    private final ObjectProperty<EventHandler<ActionEvent>> priceFilterAction = new SimpleObjectProperty<>();
+    private final ObjectProperty<EventHandler<ActionEvent>> availabilityFilterAction = new SimpleObjectProperty<>();
+    private final ObjectProperty<EventHandler<ActionEvent>> resetFiltersAction = new SimpleObjectProperty<>();
+
     public RoomViewModel() {
         this.roomService = new RoomService();
         this.hotelService = new HotelService();
@@ -49,6 +61,14 @@ public class RoomViewModel {
 
         // Bind the saveButton disabled state
         saveButtonDisabled.bind(roomNumber.isEmpty().or(selectedHotel.isNull()));
+
+        // Setăm acțiunile pentru butoane
+        saveAction.set(event -> saveRoom());
+        deleteAction.set(event -> deleteRoom());
+        clearAction.set(event -> clearRoomFields());
+        priceFilterAction.set(event -> filterRoomsByPrice());
+        availabilityFilterAction.set(event -> filterRoomsByAvailability());
+        resetFiltersAction.set(event -> clearFilters());
 
         // Add listener to selected hotel property to load rooms for that hotel
         selectedHotel.addListener((observable, oldValue, newValue) -> {
@@ -71,10 +91,10 @@ public class RoomViewModel {
                 // Verificăm dacă capacitatea este setată corect
                 if (newValue.getCapacity() != null) {
                     capacity.set(newValue.getCapacity());
-                    System.out.println("Camera selectată are capacitatea: " + newValue.getCapacity());
+                    logger.debug("Camera selectată are capacitatea: {}", newValue.getCapacity());
                 } else {
                     capacity.set(2); // Valoare implicită dacă nu există
-                    System.out.println("Camera selectată nu are capacitate setată, folosim valoarea implicită: 2");
+                    logger.debug("Camera selectată nu are capacitate setată, folosim valoarea implicită: 2");
                 }
 
                 // Set hotel if not already set
@@ -140,7 +160,7 @@ public class RoomViewModel {
         room.setRoomType(roomType.get());
         room.setCapacity(capacity.get());
 
-        System.out.println("Salvăm camera cu capacitatea: " + capacity.get());
+        logger.debug("Salvăm camera cu capacitatea: {}", capacity.get());
 
         boolean success;
         if (roomId.get() > 0) {
@@ -265,5 +285,30 @@ public class RoomViewModel {
 
     public StringProperty statusMessageProperty() {
         return statusMessage;
+    }
+
+    // Getters for action properties
+    public ObjectProperty<EventHandler<ActionEvent>> saveActionProperty() {
+        return saveAction;
+    }
+
+    public ObjectProperty<EventHandler<ActionEvent>> deleteActionProperty() {
+        return deleteAction;
+    }
+
+    public ObjectProperty<EventHandler<ActionEvent>> clearActionProperty() {
+        return clearAction;
+    }
+
+    public ObjectProperty<EventHandler<ActionEvent>> priceFilterActionProperty() {
+        return priceFilterAction;
+    }
+
+    public ObjectProperty<EventHandler<ActionEvent>> availabilityFilterActionProperty() {
+        return availabilityFilterAction;
+    }
+
+    public ObjectProperty<EventHandler<ActionEvent>> resetFiltersActionProperty() {
+        return resetFiltersAction;
     }
 }

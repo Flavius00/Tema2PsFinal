@@ -7,11 +7,15 @@ import javafx.util.StringConverter;
 import model.Chain;
 import model.Hotel;
 import model.Location;
+import service.LocationService;
 import viewmodel.HotelViewModel;
+
+import java.util.List;
 
 public class HotelViewController {
 
     private HotelViewModel viewModel;
+    private LocationService locationService;
 
     @FXML
     private ComboBox<Chain> chainComboBox;
@@ -20,7 +24,7 @@ public class HotelViewController {
     private ComboBox<Chain> filterChainComboBox;
 
     @FXML
-    private ComboBox<Location> locationComboBox; // New ComboBox for locations
+    private ComboBox<Location> locationComboBox;
 
     @FXML
     private TextField nameTextField;
@@ -33,6 +37,21 @@ public class HotelViewController {
 
     @FXML
     private TextArea amenitiesTextArea;
+
+    @FXML
+    private Button saveButton;
+
+    @FXML
+    private Button deleteButton;
+
+    @FXML
+    private Button clearButton;
+
+    @FXML
+    private Button filterButton;
+
+    @FXML
+    private Button resetButton;
 
     @FXML
     private Label statusLabel;
@@ -61,6 +80,7 @@ public class HotelViewController {
     @FXML
     private void initialize() {
         viewModel = new HotelViewModel();
+        locationService = new LocationService();
 
         // Setup bindings for form fields
         nameTextField.textProperty().bindBidirectional(viewModel.nameProperty());
@@ -68,6 +88,52 @@ public class HotelViewController {
         emailTextField.textProperty().bindBidirectional(viewModel.emailProperty());
         amenitiesTextArea.textProperty().bindBidirectional(viewModel.amenitiesProperty());
         statusLabel.textProperty().bind(viewModel.statusMessageProperty());
+
+        // Setup location ComboBox
+        loadLocations();
+        locationComboBox.setConverter(new StringConverter<Location>() {
+            @Override
+            public String toString(Location location) {
+                return location == null ? "" : location.getCity() + ", " + location.getCountry();
+            }
+
+            @Override
+            public Location fromString(String string) {
+                return null; // Not needed for combo box
+            }
+        });
+
+        // Add listener to location ComboBox
+        locationComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                viewModel.locationIdProperty().set(newVal.getId());
+                viewModel.countryProperty().set(newVal.getCountry());
+                viewModel.cityProperty().set(newVal.getCity());
+                viewModel.streetProperty().set(newVal.getStreet());
+                viewModel.numberProperty().set(newVal.getNumber());
+            } else {
+                viewModel.locationIdProperty().set(0);
+                viewModel.countryProperty().set("");
+                viewModel.cityProperty().set("");
+                viewModel.streetProperty().set("");
+                viewModel.numberProperty().set("");
+            }
+        });
+
+        // Add listener to selected hotel property to update location ComboBox
+        viewModel.selectedHotelProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && newVal.getLocation() != null) {
+                // Find matching location in ComboBox
+                for (Location location : locationComboBox.getItems()) {
+                    if (location.getId().equals(newVal.getLocation().getId())) {
+                        locationComboBox.setValue(location);
+                        break;
+                    }
+                }
+            } else {
+                locationComboBox.setValue(null);
+            }
+        });
 
         // Setup table columns
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -127,60 +193,23 @@ public class HotelViewController {
             }
         });
 
-        // Setup location combo box
-        locationComboBox.setItems(viewModel.getLocations());
-        locationComboBox.valueProperty().bindBidirectional(viewModel.selectedLocationProperty());
-        locationComboBox.setConverter(new StringConverter<Location>() {
-            @Override
-            public String toString(Location location) {
-                return location == null ? "" : location.getCity() + ", " + location.getCountry();
-            }
+        // Setup action bindings pentru butoane
+        saveButton.disableProperty().bind(viewModel.saveButtonDisabledProperty());
+        saveButton.onActionProperty().bind(viewModel.saveActionProperty());
 
-            @Override
-            public Location fromString(String string) {
-                return null; // Not needed for combo box
-            }
-        });
+        deleteButton.disableProperty().bind(viewModel.selectedHotelProperty().isNull());
+        deleteButton.onActionProperty().bind(viewModel.deleteActionProperty());
+
+        clearButton.onActionProperty().bind(viewModel.clearActionProperty());
+
+        filterButton.onActionProperty().bind(viewModel.filterActionProperty());
+
+        resetButton.onActionProperty().bind(viewModel.resetActionProperty());
     }
 
-    @FXML
-    private void handleSaveButton() {
-        viewModel.saveHotel();
-    }
-
-    @FXML
-    private void handleDeleteButton() {
-        if (hotelTableView.getSelectionModel().getSelectedItem() != null) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirmare ștergere");
-            alert.setHeaderText("Șterge hotel");
-            alert.setContentText("Sigur doriți să ștergeți hotelul selectat?");
-
-            alert.showAndWait().ifPresent(response -> {
-                if (response == ButtonType.OK) {
-                    viewModel.deleteHotel();
-                }
-            });
-        } else {
-            statusLabel.setText("Selectați un hotel pentru a-l șterge");
-        }
-    }
-
-    @FXML
-    private void handleClearButton() {
-        viewModel.clearForm();
-        hotelTableView.getSelectionModel().clearSelection();
-    }
-
-    @FXML
-    private void handleFilterButton() {
-        Chain selectedChain = filterChainComboBox.getValue();
-        viewModel.loadHotelsByChain(selectedChain);
-    }
-
-    @FXML
-    private void handleResetButton() {
-        filterChainComboBox.setValue(null);
-        viewModel.loadHotels();
+    private void loadLocations() {
+        List<Location> locations = locationService.getAllLocations();
+        locationComboBox.getItems().clear();
+        locationComboBox.getItems().addAll(locations);
     }
 }

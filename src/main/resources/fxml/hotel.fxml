@@ -46,9 +46,9 @@
             <ComboBox fx:id="locationComboBox" promptText="Selectați o locație" maxWidth="Infinity" />
 
             <HBox spacing="10" alignment="CENTER_RIGHT">
-                <Button text="Anulează" onAction="#handleClearButton" styleClass="button-cancel" />
-                <Button text="Salvează" onAction="#handleSaveButton" styleClass="button-save" />
-                <Button text="Șterge" onAction="#handleDeleteButton" styleClass="button-delete" />
+                <Button fx:id="clearButton" text="Anulează" styleClass="button-cancel" />
+                <Button fx:id="saveButton" text="Salvează" styleClass="button-save" />
+                <Button fx:id="deleteButton" text="Șterge" styleClass="button-delete" />
             </HBox>
 
             <Label fx:id="statusLabel" styleClass="success-message" />
@@ -61,8 +61,8 @@
 
         <HBox spacing="10" alignment="CENTER_LEFT">
             <ComboBox fx:id="filterChainComboBox" promptText="Filtrare după lanț hotelier" />
-            <Button text="Filtrează" onAction="#handleFilterButton" />
-            <Button text="Resetează" onAction="#handleResetButton" />
+            <Button fx:id="filterButton" text="Filtrează" />
+            <Button fx:id="resetButton" text="Resetează" />
         </HBox>
 
         <TableView fx:id="hotelTableView" VBox.vgrow="ALWAYS">
