@@ -1,5 +1,6 @@
 package view;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
@@ -92,21 +93,6 @@ public class ReportViewController {
             }
         });
 
-        // Setăm stage-ul în viewModel pentru a permite deschiderea dialog-urilor
-        // Acest lucru trebuie făcut după ce componenta este adăugată la scenă
-        // Adăugăm un listener pentru a apela setStage atunci când componenta este vizibilă
-        statusLabel.sceneProperty().addListener((obs, oldScene, newScene) -> {
-            if (newScene != null) {
-                // Apelăm acest cod după ce scena este creată și atașată la o fereastră
-                newScene.windowProperty().addListener((obsWindow, oldWindow, newWindow) -> {
-                    if (newWindow != null) {
-                        viewModel.setStage((Stage) newWindow);
-                        logger.info("Stage setat în ReportViewModel");
-                    }
-                });
-            }
-        });
-
         // Setup action bindings pentru butoane
         exportReservationsCsvButton.disableProperty().bind(
                 viewModel.selectedHotelProperty().isNull().or(viewModel.reportDateProperty().isNull())
@@ -132,6 +118,49 @@ public class ReportViewController {
         );
         exportRoomsDocButton.onActionProperty().bind(viewModel.exportRoomsDocActionProperty());
 
+        // Important: Add a more reliable way to set the stage
+        Platform.runLater(this::setStageInViewModel);
+
         logger.info("Inițializare ReportViewController finalizată");
+    }
+
+    /**
+     * Method to set the stage in the viewModel
+     * This will be called after the scene is fully initialized
+     */
+    private void setStageInViewModel() {
+        try {
+            if (exportReservationsCsvButton.getScene() != null &&
+                    exportReservationsCsvButton.getScene().getWindow() != null) {
+                Stage stage = (Stage) exportReservationsCsvButton.getScene().getWindow();
+                viewModel.setStage(stage);
+                logger.info("Stage setat cu succes în ReportViewModel: {}", stage);
+            } else {
+                logger.error("Nu s-a putut obține stage-ul pentru ReportViewModel - scene sau window null");
+                // Try again later
+                Platform.runLater(() -> {
+                    if (exportReservationsCsvButton.getScene() != null &&
+                            exportReservationsCsvButton.getScene().getWindow() != null) {
+                        Stage stage = (Stage) exportReservationsCsvButton.getScene().getWindow();
+                        viewModel.setStage(stage);
+                        logger.info("Stage setat cu succes în ReportViewModel (a doua încercare): {}", stage);
+                    } else {
+                        logger.error("Nu s-a putut obține stage-ul pentru ReportViewModel - a doua încercare eșuată");
+                    }
+                });
+            }
+        } catch (Exception e) {
+            logger.error("Eroare la setarea stage-ului în ReportViewModel: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Manual method to set stage - can be called from MainViewController if needed
+     */
+    public void setStage(Stage stage) {
+        if (stage != null && viewModel != null) {
+            viewModel.setStage(stage);
+            logger.info("Stage setat manual în ReportViewModel: {}", stage);
+        }
     }
 }

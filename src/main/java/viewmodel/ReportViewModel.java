@@ -8,6 +8,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -66,6 +68,31 @@ public class ReportViewModel {
         logger.info("Au fost încărcate {} hoteluri", hotelList.size());
     }
 
+    /**
+     * Helper method to check if stage is set and show alert if not
+     * @return true if stage is set, false otherwise
+     */
+    private boolean checkStage() {
+        if (stage == null) {
+            logger.error("Stage nesetat în ReportViewModel");
+            statusMessage.set("Eroare: Stage nesetat. Reîncărcați pagina.");
+
+            // Show an alert dialog to notify the user
+            try {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Eroare");
+                alert.setHeaderText("Stage nesetat");
+                alert.setContentText("A apărut o eroare la inițializarea ferestrei de export. Vă rugăm să reîncărcați pagina și să încercați din nou.");
+                alert.showAndWait();
+            } catch (Exception e) {
+                logger.error("Nu s-a putut afișa alerta: {}", e.getMessage());
+            }
+
+            return false;
+        }
+        return true;
+    }
+
     public boolean exportReservationsToCsv() {
         logger.info("Inițiere export rezervări în CSV");
         if (selectedHotel.get() == null) {
@@ -80,9 +107,7 @@ public class ReportViewModel {
             return false;
         }
 
-        if (stage == null) {
-            statusMessage.set("Eroare: Stage nesetat. Reîncărcați pagina.");
-            logger.error("Export rezervări în CSV eșuat: Stage nesetat");
+        if (!checkStage()) {
             return false;
         }
 
@@ -130,9 +155,7 @@ public class ReportViewModel {
             return false;
         }
 
-        if (stage == null) {
-            statusMessage.set("Eroare: Stage nesetat. Reîncărcați pagina.");
-            logger.error("Export rezervări în DOC eșuat: Stage nesetat");
+        if (!checkStage()) {
             return false;
         }
 
@@ -186,9 +209,7 @@ public class ReportViewModel {
             return false;
         }
 
-        if (stage == null) {
-            statusMessage.set("Eroare: Stage nesetat. Reîncărcați pagina.");
-            logger.error("Export camere în CSV eșuat: Stage nesetat");
+        if (!checkStage()) {
             return false;
         }
 
@@ -243,9 +264,7 @@ public class ReportViewModel {
             return false;
         }
 
-        if (stage == null) {
-            statusMessage.set("Eroare: Stage nesetat. Reîncărcați pagina.");
-            logger.error("Export camere în DOC eșuat: Stage nesetat");
+        if (!checkStage()) {
             return false;
         }
 
