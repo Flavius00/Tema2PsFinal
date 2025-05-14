@@ -1,7 +1,7 @@
 package repository;
 
 import model.Location;
-import org.example.DBConnection;
+import org.example.tema2ps.DBConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -8,11 +8,14 @@ import model.Hotel;
 import model.Reservation;
 import model.Room;
 import viewmodel.ReservationViewModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class ReservationViewController {
+    private static final Logger logger = LoggerFactory.getLogger(ReservationViewController.class);
 
     private ReservationViewModel viewModel;
 
@@ -82,6 +85,7 @@ public class ReservationViewController {
     @FXML
     private void initialize() {
         viewModel = new ReservationViewModel();
+        logger.info("Inițializare ReservationViewController");
 
         // Setup bindings for form fields
         customerNameTextField.textProperty().bindBidirectional(viewModel.customerNameProperty());
@@ -103,14 +107,19 @@ public class ReservationViewController {
         // Setup table columns
         reservationIdColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         customerNameColumn.setCellValueFactory(new PropertyValueFactory<>("customerName"));
+
         roomInfoColumn.setCellValueFactory(cellData -> {
             Reservation reservation = cellData.getValue();
             if (reservation.getRoom() != null) {
-                return new javafx.beans.property.SimpleStringProperty(
-                        reservation.getRoom().getRoomNumber() + " - " + reservation.getRoom().getRoomType());
+                StringBuilder roomInfo = new StringBuilder(reservation.getRoom().getRoomNumber());
+                if (reservation.getRoom().getRoomType() != null && !reservation.getRoom().getRoomType().isEmpty()) {
+                    roomInfo.append(" - ").append(reservation.getRoom().getRoomType());
+                }
+                return new javafx.beans.property.SimpleStringProperty(roomInfo.toString());
             }
             return new javafx.beans.property.SimpleStringProperty("N/A");
         });
+
         hotelNameColumn.setCellValueFactory(cellData -> {
             Reservation reservation = cellData.getValue();
             if (reservation.getRoom() != null && reservation.getRoom().getHotel() != null) {
@@ -123,13 +132,20 @@ public class ReservationViewController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         checkInColumn.setCellValueFactory(cellData -> {
             Reservation reservation = cellData.getValue();
-            return new javafx.beans.property.SimpleStringProperty(
-                    reservation.getStartDate().toLocalDate().format(formatter));
+            if (reservation.getStartDate() != null) {
+                return new javafx.beans.property.SimpleStringProperty(
+                        reservation.getStartDate().toLocalDate().format(formatter));
+            }
+            return new javafx.beans.property.SimpleStringProperty("N/A");
         });
+
         checkOutColumn.setCellValueFactory(cellData -> {
             Reservation reservation = cellData.getValue();
-            return new javafx.beans.property.SimpleStringProperty(
-                    reservation.getEndDate().toLocalDate().format(formatter));
+            if (reservation.getEndDate() != null) {
+                return new javafx.beans.property.SimpleStringProperty(
+                        reservation.getEndDate().toLocalDate().format(formatter));
+            }
+            return new javafx.beans.property.SimpleStringProperty("N/A");
         });
 
         totalPriceColumn.setCellValueFactory(new PropertyValueFactory<>("totalPrice"));
@@ -137,10 +153,14 @@ public class ReservationViewController {
 
         // Bind table items
         reservationTableView.setItems(viewModel.getReservations());
+        logger.info("Număr rezervări în tabel: {}", viewModel.getReservations().size());
 
         // Setup table selection listener
         reservationTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             viewModel.selectedReservationProperty().set(newSelection);
+            if (newSelection != null) {
+                logger.info("Rezervare selectată: ID={}, Client={}", newSelection.getId(), newSelection.getCustomerName());
+            }
         });
 
         // Setup hotel combo box
@@ -165,8 +185,14 @@ public class ReservationViewController {
             @Override
             public String toString(Room room) {
                 if (room == null) return "";
-                return room.getRoomNumber() + " - " + room.getRoomType() +
-                        " (" + room.getPricePerNight() + " RON/noapte)";
+                StringBuilder roomInfo = new StringBuilder(room.getRoomNumber());
+                if (room.getRoomType() != null && !room.getRoomType().isEmpty()) {
+                    roomInfo.append(" - ").append(room.getRoomType());
+                }
+                if (room.getPricePerNight() != null) {
+                    roomInfo.append(" (").append(room.getPricePerNight()).append(" RON/noapte)");
+                }
+                return roomInfo.toString();
             }
 
             @Override
@@ -178,6 +204,9 @@ public class ReservationViewController {
         // Setup payment status combo box
         paymentStatusComboBox.getItems().addAll("Pending", "Confirmed", "Paid", "Canceled");
         paymentStatusComboBox.valueProperty().bindBidirectional(viewModel.paymentStatusProperty());
+
+        // Încarcă rezervările la inițializare
+        viewModel.loadAllReservations();
     }
 
     @FXML
@@ -223,7 +252,10 @@ public class ReservationViewController {
     private void handleResetFiltersButton() {
         searchCustomerTextField.clear();
         if (hotelComboBox.getValue() != null) {
-            viewModel.filterReservationsByDate();
+            viewModel.loadReservationsByHotelId(hotelComboBox.getValue().getId());
+        } else {
+            // Încărcăm toate rezervările dacă nu e selectat un hotel
+            viewModel.loadAllReservations();
         }
     }
 }

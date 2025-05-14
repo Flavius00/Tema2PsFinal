@@ -93,8 +93,21 @@ public class RoomViewController {
         amenitiesTextArea.textProperty().bindBidirectional(viewModel.amenitiesProperty());
         statusLabel.textProperty().bind(viewModel.statusMessageProperty());
 
-        // Setup spinner
-        capacitySpinner.getValueFactory().valueProperty().bindBidirectional(viewModel.capacityProperty().asObject());
+        // Setup spinner cu valori între 1 și 10
+        SpinnerValueFactory<Integer> valueFactory =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, 2);
+        capacitySpinner.setValueFactory(valueFactory);
+
+        // Creăm bind-ul bidirecțional între spinner și proprietatea capacity
+        viewModel.capacityProperty().addListener((obs, oldVal, newVal) -> {
+            // Actualizăm valoarea din spinner când se schimbă proprietatea capacityProperty
+            capacitySpinner.getValueFactory().setValue(newVal.intValue());
+        });
+
+        // Și invers, actualizăm proprietatea când se schimbă spinner-ul
+        capacitySpinner.valueProperty().addListener((obs, oldVal, newVal) -> {
+            viewModel.capacityProperty().set(newVal);
+        });
 
         // Setup filter fields
         minPriceTextField.textProperty().bindBidirectional(viewModel.minPriceProperty(),
@@ -175,6 +188,8 @@ public class RoomViewController {
 
     @FXML
     private void handleSaveButton() {
+        // Asigurăm că valoarea curentă din spinner este setată în model înainte de salvare
+        viewModel.capacityProperty().set(capacitySpinner.getValue());
         viewModel.saveRoom();
     }
 

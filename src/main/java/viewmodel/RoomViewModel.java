@@ -29,7 +29,7 @@ public class RoomViewModel {
     private final DoubleProperty pricePerNight = new SimpleDoubleProperty(0.0);
     private final StringProperty amenities = new SimpleStringProperty("");
     private final StringProperty roomType = new SimpleStringProperty("");
-    private final IntegerProperty capacity = new SimpleIntegerProperty(0);
+    private final IntegerProperty capacity = new SimpleIntegerProperty(2); // Valoare implicită: 2
 
     // Filter properties
     private final DoubleProperty minPrice = new SimpleDoubleProperty(0.0);
@@ -67,7 +67,15 @@ public class RoomViewModel {
                 pricePerNight.set(newValue.getPricePerNight());
                 amenities.set(newValue.getAmenities());
                 roomType.set(newValue.getRoomType());
-                capacity.set(newValue.getCapacity() != null ? newValue.getCapacity() : 0);
+
+                // Verificăm dacă capacitatea este setată corect
+                if (newValue.getCapacity() != null) {
+                    capacity.set(newValue.getCapacity());
+                    System.out.println("Camera selectată are capacitatea: " + newValue.getCapacity());
+                } else {
+                    capacity.set(2); // Valoare implicită dacă nu există
+                    System.out.println("Camera selectată nu are capacitate setată, folosim valoarea implicită: 2");
+                }
 
                 // Set hotel if not already set
                 if (selectedHotel.get() == null || !selectedHotel.get().getId().equals(newValue.getHotelId())) {
@@ -132,6 +140,8 @@ public class RoomViewModel {
         room.setRoomType(roomType.get());
         room.setCapacity(capacity.get());
 
+        System.out.println("Salvăm camera cu capacitatea: " + capacity.get());
+
         boolean success;
         if (roomId.get() > 0) {
             room.setId(roomId.get());
@@ -178,7 +188,7 @@ public class RoomViewModel {
         pricePerNight.set(0.0);
         amenities.set("");
         roomType.set("");
-        capacity.set(0);
+        capacity.set(2); // Resetăm la valoarea implicită
         selectedRoom.set(null);
     }
 

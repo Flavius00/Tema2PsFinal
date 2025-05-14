@@ -22,7 +22,9 @@ public class ReservationService {
     }
 
     public List<Reservation> getAllReservations() {
-        return reservationRepository.findAll();
+        List<Reservation> reservations = reservationRepository.findAll();
+        logger.info("Au fost preluate {} rezervări din baza de date", reservations.size());
+        return reservations;
     }
 
     public List<Reservation> getReservationsByRoomId(Long roomId) {
@@ -31,6 +33,10 @@ public class ReservationService {
 
     public List<Reservation> getReservationsByHotelIdAndDate(Long hotelId, LocalDateTime date) {
         return reservationRepository.findByHotelIdAndDate(hotelId, date);
+    }
+
+    public List<Reservation> getReservationsByHotelId(Long hotelId) {
+        return reservationRepository.findByHotelId(hotelId);
     }
 
     public List<Reservation> getReservationsByCustomerName(String customerName) {
@@ -46,7 +52,7 @@ public class ReservationService {
             // Verify the room exists and is available
             Optional<Room> roomOpt = roomRepository.findById(reservation.getRoomId());
             if (!roomOpt.isPresent()) {
-                logger.error("Cannot add reservation: Room with id {} not found", reservation.getRoomId());
+                logger.error("Nu se poate adăuga rezervarea: Camera cu id-ul {} nu a fost găsită", reservation.getRoomId());
                 return false;
             }
 
@@ -58,7 +64,7 @@ public class ReservationService {
                 // If there's any overlap with existing reservations, the room is not available
                 if (!(reservation.getEndDate().isBefore(existingRes.getStartDate()) ||
                         reservation.getStartDate().isAfter(existingRes.getEndDate()))) {
-                    logger.error("Cannot add reservation: Room {} is not available for the requested dates", room.getRoomNumber());
+                    logger.error("Nu se poate adăuga rezervarea: Camera {} nu este disponibilă în perioada solicitată", room.getRoomNumber());
                     return false;
                 }
             }
@@ -81,7 +87,7 @@ public class ReservationService {
             }
             return false;
         } catch (Exception e) {
-            logger.error("Error adding reservation for room id: {}", reservation.getRoomId(), e);
+            logger.error("Eroare la adăugarea rezervării pentru camera cu id-ul: {}", reservation.getRoomId(), e);
             return false;
         }
     }
@@ -91,7 +97,7 @@ public class ReservationService {
             // Verify the room exists
             Optional<Room> roomOpt = roomRepository.findById(reservation.getRoomId());
             if (!roomOpt.isPresent()) {
-                logger.error("Cannot update reservation: Room with id {} not found", reservation.getRoomId());
+                logger.error("Nu se poate actualiza rezervarea: Camera cu id-ul {} nu a fost găsită", reservation.getRoomId());
                 return false;
             }
 
@@ -101,7 +107,7 @@ public class ReservationService {
             // Get the existing reservation to compare dates
             Optional<Reservation> existingResOpt = reservationRepository.findById(reservation.getId());
             if (!existingResOpt.isPresent()) {
-                logger.error("Cannot update reservation: Reservation with id {} not found", reservation.getId());
+                logger.error("Nu se poate actualiza rezervarea: Rezervarea cu id-ul {} nu a fost găsită", reservation.getId());
                 return false;
             }
 
@@ -121,7 +127,7 @@ public class ReservationService {
                     // If there's any overlap with other reservations, the room is not available
                     if (!(reservation.getEndDate().isBefore(res.getStartDate()) ||
                             reservation.getStartDate().isAfter(res.getEndDate()))) {
-                        logger.error("Cannot update reservation: Room {} is not available for the requested dates", room.getRoomNumber());
+                        logger.error("Nu se poate actualiza rezervarea: Camera {} nu este disponibilă în perioada solicitată", room.getRoomNumber());
                         return false;
                     }
                 }
@@ -138,7 +144,7 @@ public class ReservationService {
 
             return reservationRepository.update(reservation);
         } catch (Exception e) {
-            logger.error("Error updating reservation with id: {}", reservation.getId(), e);
+            logger.error("Eroare la actualizarea rezervării cu id-ul: {}", reservation.getId(), e);
             return false;
         }
     }
@@ -147,7 +153,7 @@ public class ReservationService {
         try {
             return reservationRepository.delete(id);
         } catch (Exception e) {
-            logger.error("Error deleting reservation with id: {}", id, e);
+            logger.error("Eroare la ștergerea rezervării cu id-ul: {}", id, e);
             return false;
         }
     }

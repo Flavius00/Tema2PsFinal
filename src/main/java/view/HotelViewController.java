@@ -3,8 +3,10 @@ package view;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.util.StringConverter;
 import model.Chain;
 import model.Hotel;
+import model.Location;
 import viewmodel.HotelViewModel;
 
 public class HotelViewController {
@@ -18,6 +20,9 @@ public class HotelViewController {
     private ComboBox<Chain> filterChainComboBox;
 
     @FXML
+    private ComboBox<Location> locationComboBox; // New ComboBox for locations
+
+    @FXML
     private TextField nameTextField;
 
     @FXML
@@ -28,18 +33,6 @@ public class HotelViewController {
 
     @FXML
     private TextArea amenitiesTextArea;
-
-    @FXML
-    private TextField countryTextField;
-
-    @FXML
-    private TextField cityTextField;
-
-    @FXML
-    private TextField streetTextField;
-
-    @FXML
-    private TextField numberTextField;
 
     @FXML
     private Label statusLabel;
@@ -74,10 +67,6 @@ public class HotelViewController {
         phoneTextField.textProperty().bindBidirectional(viewModel.phoneProperty());
         emailTextField.textProperty().bindBidirectional(viewModel.emailProperty());
         amenitiesTextArea.textProperty().bindBidirectional(viewModel.amenitiesProperty());
-        countryTextField.textProperty().bindBidirectional(viewModel.countryProperty());
-        cityTextField.textProperty().bindBidirectional(viewModel.cityProperty());
-        streetTextField.textProperty().bindBidirectional(viewModel.streetProperty());
-        numberTextField.textProperty().bindBidirectional(viewModel.numberProperty());
         statusLabel.textProperty().bind(viewModel.statusMessageProperty());
 
         // Setup table columns
@@ -112,10 +101,21 @@ public class HotelViewController {
         // Setup chain combo boxes
         chainComboBox.setItems(viewModel.getChains());
         chainComboBox.valueProperty().bindBidirectional(viewModel.selectedChainProperty());
+        chainComboBox.setConverter(new StringConverter<Chain>() {
+            @Override
+            public String toString(Chain chain) {
+                return chain == null ? "" : chain.getName();
+            }
+
+            @Override
+            public Chain fromString(String string) {
+                return null; // Not needed for combo box
+            }
+        });
 
         filterChainComboBox.setItems(viewModel.getChains());
         filterChainComboBox.getItems().add(0, null); // Add null option for "All chains"
-        filterChainComboBox.setConverter(new javafx.util.StringConverter<Chain>() {
+        filterChainComboBox.setConverter(new StringConverter<Chain>() {
             @Override
             public String toString(Chain chain) {
                 return chain == null ? "Toate lanțurile" : chain.getName();
@@ -123,6 +123,21 @@ public class HotelViewController {
 
             @Override
             public Chain fromString(String string) {
+                return null; // Not needed for combo box
+            }
+        });
+
+        // Setup location combo box
+        locationComboBox.setItems(viewModel.getLocations());
+        locationComboBox.valueProperty().bindBidirectional(viewModel.selectedLocationProperty());
+        locationComboBox.setConverter(new StringConverter<Location>() {
+            @Override
+            public String toString(Location location) {
+                return location == null ? "" : location.getCity() + ", " + location.getCountry();
+            }
+
+            @Override
+            public Location fromString(String string) {
                 return null; // Not needed for combo box
             }
         });

@@ -1,8 +1,9 @@
 package repository;
 
+import model.Chain;
 import model.Hotel;
 import model.Location;
-import org.example.DBConnection;
+import org.example.tema2ps.DBConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,14 +15,21 @@ import java.util.Optional;
 public class HotelRepository {
     private static final Logger logger = LoggerFactory.getLogger(HotelRepository.class);
     private final LocationRepository locationRepository;
+    private final ChainRepository chainRepository;
 
     public HotelRepository() {
         this.locationRepository = new LocationRepository();
+        this.chainRepository = new ChainRepository();
     }
 
     public List<Hotel> findAll() {
         List<Hotel> hotels = new ArrayList<>();
-        String sql = "SELECT * FROM hotel ORDER BY nume";
+        String sql = "SELECT h.*, l.id as loc_id, l.tara, l.oras, l.strada, l.numar, " +
+                "c.id as chain_id, c.nume as chain_name " +
+                "FROM hotel h " +
+                "LEFT JOIN locatie l ON h.id_locatie = l.id " +
+                "LEFT JOIN lant c ON h.id_lant = c.id " +
+                "ORDER BY h.nume";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -30,10 +38,23 @@ public class HotelRepository {
             while (rs.next()) {
                 Hotel hotel = mapResultSetToHotel(rs);
 
-                // Load location data
+                // Set Location directly from join results
                 if (hotel.getLocationId() != null) {
-                    Optional<Location> location = locationRepository.findById(hotel.getLocationId());
-                    location.ifPresent(hotel::setLocation);
+                    Location location = new Location();
+                    location.setId(rs.getLong("loc_id"));
+                    location.setCountry(rs.getString("tara"));
+                    location.setCity(rs.getString("oras"));
+                    location.setStreet(rs.getString("strada"));
+                    location.setNumber(rs.getString("numar"));
+                    hotel.setLocation(location);
+                }
+
+                // Set Chain directly from join results
+                if (hotel.getChainId() != null) {
+                    Chain chain = new Chain();
+                    chain.setId(rs.getLong("chain_id"));
+                    chain.setName(rs.getString("chain_name"));
+                    hotel.setChain(chain);
                 }
 
                 hotels.add(hotel);
@@ -47,7 +68,13 @@ public class HotelRepository {
 
     public List<Hotel> findByChainId(Long chainId) {
         List<Hotel> hotels = new ArrayList<>();
-        String sql = "SELECT * FROM hotel WHERE id_lant = ? ORDER BY nume";
+        String sql = "SELECT h.*, l.id as loc_id, l.tara, l.oras, l.strada, l.numar, " +
+                "c.id as chain_id, c.nume as chain_name " +
+                "FROM hotel h " +
+                "LEFT JOIN locatie l ON h.id_locatie = l.id " +
+                "LEFT JOIN lant c ON h.id_lant = c.id " +
+                "WHERE h.id_lant = ? " +
+                "ORDER BY h.nume";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -58,10 +85,23 @@ public class HotelRepository {
                 while (rs.next()) {
                     Hotel hotel = mapResultSetToHotel(rs);
 
-                    // Load location data
+                    // Set Location directly from join results
                     if (hotel.getLocationId() != null) {
-                        Optional<Location> location = locationRepository.findById(hotel.getLocationId());
-                        location.ifPresent(hotel::setLocation);
+                        Location location = new Location();
+                        location.setId(rs.getLong("loc_id"));
+                        location.setCountry(rs.getString("tara"));
+                        location.setCity(rs.getString("oras"));
+                        location.setStreet(rs.getString("strada"));
+                        location.setNumber(rs.getString("numar"));
+                        hotel.setLocation(location);
+                    }
+
+                    // Set Chain directly from join results
+                    if (hotel.getChainId() != null) {
+                        Chain chain = new Chain();
+                        chain.setId(rs.getLong("chain_id"));
+                        chain.setName(rs.getString("chain_name"));
+                        hotel.setChain(chain);
                     }
 
                     hotels.add(hotel);
@@ -75,7 +115,12 @@ public class HotelRepository {
     }
 
     public Optional<Hotel> findById(Long id) {
-        String sql = "SELECT * FROM hotel WHERE id = ?";
+        String sql = "SELECT h.*, l.id as loc_id, l.tara, l.oras, l.strada, l.numar, " +
+                "c.id as chain_id, c.nume as chain_name " +
+                "FROM hotel h " +
+                "LEFT JOIN locatie l ON h.id_locatie = l.id " +
+                "LEFT JOIN lant c ON h.id_lant = c.id " +
+                "WHERE h.id = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -86,10 +131,23 @@ public class HotelRepository {
                 if (rs.next()) {
                     Hotel hotel = mapResultSetToHotel(rs);
 
-                    // Load location data
+                    // Set Location directly from join results
                     if (hotel.getLocationId() != null) {
-                        Optional<Location> location = locationRepository.findById(hotel.getLocationId());
-                        location.ifPresent(hotel::setLocation);
+                        Location location = new Location();
+                        location.setId(rs.getLong("loc_id"));
+                        location.setCountry(rs.getString("tara"));
+                        location.setCity(rs.getString("oras"));
+                        location.setStreet(rs.getString("strada"));
+                        location.setNumber(rs.getString("numar"));
+                        hotel.setLocation(location);
+                    }
+
+                    // Set Chain directly from join results
+                    if (hotel.getChainId() != null) {
+                        Chain chain = new Chain();
+                        chain.setId(rs.getLong("chain_id"));
+                        chain.setName(rs.getString("chain_name"));
+                        hotel.setChain(chain);
                     }
 
                     return Optional.of(hotel);
@@ -104,10 +162,11 @@ public class HotelRepository {
 
     public Long save(Hotel hotel) {
         String sql = "INSERT INTO hotel (nume, id_locatie, telefon, email, facilitati, id_lant) " +
-                "VALUES (?, ?, ?, ?, ?, ?) RETURNING id";
+                "VALUES (?, ?, ?, ?, ?, ?)";
+        String[] generatedColumns = {"id"};
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, hotel.getName());
 
@@ -127,9 +186,15 @@ public class HotelRepository {
                 stmt.setNull(6, Types.BIGINT);
             }
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                return null;
+            }
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
-                    return rs.getLong("id");
+                    return rs.getLong(1);
                 }
             }
         } catch (SQLException e) {

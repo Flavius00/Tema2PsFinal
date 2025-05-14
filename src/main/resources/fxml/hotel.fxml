@@ -15,48 +15,45 @@
     </columnConstraints>
 
     <!-- Hotel Form Section -->
-    <VBox spacing="10" styleClass="content-panel" GridPane.columnIndex="0" GridPane.rowIndex="0">
-        <Label text="Gestionare Hoteluri" styleClass="form-title" />
+    <ScrollPane fitToWidth="true" GridPane.columnIndex="0" GridPane.rowIndex="0">
+        <VBox spacing="10" styleClass="content-panel">
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15" />
+            </padding>
 
-        <Label text="Lanț hotelier:" styleClass="form-label" />
-        <ComboBox fx:id="chainComboBox" promptText="Selectați lanț hotelier" maxWidth="Infinity" />
+            <Label text="Gestionare Hoteluri" styleClass="form-title" />
 
-        <Label text="Nume hotel:" styleClass="form-label" />
-        <TextField fx:id="nameTextField" promptText="Introduceți numele hotelului" />
+            <Label text="Lanț hotelier:" styleClass="form-label" />
+            <ComboBox fx:id="chainComboBox" promptText="Selectați lanț hotelier" maxWidth="Infinity" />
 
-        <Label text="Telefon:" styleClass="form-label" />
-        <TextField fx:id="phoneTextField" promptText="Introduceți numărul de telefon" />
+            <Label text="Nume hotel:" styleClass="form-label" />
+            <TextField fx:id="nameTextField" promptText="Introduceți numele hotelului" />
 
-        <Label text="Email:" styleClass="form-label" />
-        <TextField fx:id="emailTextField" promptText="Introduceți adresa de email" />
+            <Label text="Telefon:" styleClass="form-label" />
+            <TextField fx:id="phoneTextField" promptText="Introduceți numărul de telefon" />
 
-        <Label text="Facilități:" styleClass="form-label" />
-        <TextArea fx:id="amenitiesTextArea" promptText="Introduceți facilitățile hotelului" prefHeight="60" />
+            <Label text="Email:" styleClass="form-label" />
+            <TextField fx:id="emailTextField" promptText="Introduceți adresa de email" />
 
-        <Separator />
+            <Label text="Facilități:" styleClass="form-label" />
+            <TextArea fx:id="amenitiesTextArea" promptText="Introduceți facilitățile hotelului" prefHeight="60" />
 
-        <Label text="Locația hotelului" styleClass="form-title" />
+            <Separator />
 
-        <Label text="Țară:" styleClass="form-label" />
-        <TextField fx:id="countryTextField" promptText="Introduceți țara" />
+            <Label text="Locația hotelului" styleClass="form-title" />
 
-        <Label text="Oraș:" styleClass="form-label" />
-        <TextField fx:id="cityTextField" promptText="Introduceți orașul" />
+            <Label text="Selectați locație:" styleClass="form-label" />
+            <ComboBox fx:id="locationComboBox" promptText="Selectați o locație" maxWidth="Infinity" />
 
-        <Label text="Strada:" styleClass="form-label" />
-        <TextField fx:id="streetTextField" promptText="Introduceți strada" />
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Anulează" onAction="#handleClearButton" styleClass="button-cancel" />
+                <Button text="Salvează" onAction="#handleSaveButton" styleClass="button-save" />
+                <Button text="Șterge" onAction="#handleDeleteButton" styleClass="button-delete" />
+            </HBox>
 
-        <Label text="Număr:" styleClass="form-label" />
-        <TextField fx:id="numberTextField" promptText="Introduceți numărul" />
-
-        <HBox spacing="10" alignment="CENTER_RIGHT">
-            <Button text="Anulează" onAction="#handleClearButton" styleClass="button-cancel" />
-            <Button text="Salvează" onAction="#handleSaveButton" styleClass="button-save" />
-            <Button text="Șterge" onAction="#handleDeleteButton" styleClass="button-delete" />
-        </HBox>
-
-        <Label fx:id="statusLabel" styleClass="success-message" />
-    </VBox>
+            <Label fx:id="statusLabel" styleClass="success-message" />
+        </VBox>
+    </ScrollPane>
 
     <!-- Hotel List Section -->
     <VBox spacing="10" styleClass="content-panel" GridPane.columnIndex="1" GridPane.rowIndex="0">

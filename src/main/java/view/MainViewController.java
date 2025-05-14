@@ -34,7 +34,7 @@ public class MainViewController {
 
     @FXML
     private void initialize() {
-        // Inițializare cu view-ul de hoteluri la pornire
+        // Initialize with hotel view on startup
         switchToHotelView();
     }
 

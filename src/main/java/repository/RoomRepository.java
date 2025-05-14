@@ -2,7 +2,7 @@ package repository;
 
 import model.Hotel;
 import model.Room;
-import org.example.DBConnection;
+import org.example.tema2ps.DBConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +69,7 @@ public class RoomRepository {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error fetching rooms by hotel id: " + hotelId, e);
+            logger.error("Eroare la obținerea camerelor după id-ul hotelului: " + hotelId, e);
         }
 
         return rooms;
@@ -98,7 +98,7 @@ public class RoomRepository {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error fetching rooms by hotel id and price range: " + hotelId, e);
+            logger.error("Eroare la obținerea camerelor după id-ul hotelului și intervalul de preț: " + hotelId, e);
         }
 
         return rooms;
@@ -135,7 +135,7 @@ public class RoomRepository {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error fetching available rooms by hotel id and date: " + hotelId, e);
+            logger.error("Eroare la obținerea camerelor disponibile după id-ul hotelului și dată: " + hotelId, e);
         }
 
         return rooms;
@@ -163,18 +163,19 @@ public class RoomRepository {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error fetching room with id: " + id, e);
+            logger.error("Eroare la obținerea camerei cu id-ul: " + id, e);
         }
 
         return Optional.empty();
     }
 
     public Long save(Room room) {
-        String sql = "INSERT INTO camera (id_hotel, nr_camera, pret_per_noapte, id_poze, amenities, room_type, capacity) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id";
+        String sql = "INSERT INTO camera (id_hotel, nr_camera, pret_per_noapte, id_poze, facilitati, tip_camera, capacitate) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String[] generatedColumns = {"id"};
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             if (room.getHotelId() != null) {
                 stmt.setLong(1, room.getHotelId());
@@ -193,15 +194,23 @@ public class RoomRepository {
 
             stmt.setString(5, room.getAmenities());
             stmt.setString(6, room.getRoomType());
-            stmt.setInt(7, room.getCapacity());
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            // Actualizat: Folosim numele corect al coloanei: capacitate
+            stmt.setInt(7, room.getCapacity() != null ? room.getCapacity() : 0);
+
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                return null;
+            }
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
-                    return rs.getLong("id");
+                    return rs.getLong(1);
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error saving room: " + room.getRoomNumber() + " in hotel id: " + room.getHotelId(), e);
+            logger.error("Eroare la salvarea camerei: " + room.getRoomNumber() + " în hotelul cu id-ul: " + room.getHotelId(), e);
         }
 
         return null;
@@ -209,7 +218,7 @@ public class RoomRepository {
 
     public boolean update(Room room) {
         String sql = "UPDATE camera SET id_hotel = ?, nr_camera = ?, pret_per_noapte = ?, " +
-                "id_poze = ?, amenities = ?, room_type = ?, capacity = ? WHERE id = ?";
+                "id_poze = ?, facilitati = ?, tip_camera = ?, capacitate = ? WHERE id = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -231,13 +240,15 @@ public class RoomRepository {
 
             stmt.setString(5, room.getAmenities());
             stmt.setString(6, room.getRoomType());
-            stmt.setInt(7, room.getCapacity());
+
+            // Actualizat: Folosim numele corect al coloanei: capacitate
+            stmt.setInt(7, room.getCapacity() != null ? room.getCapacity() : 0);
             stmt.setLong(8, room.getId());
 
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
-            logger.error("Error updating room with id: " + room.getId(), e);
+            logger.error("Eroare la actualizarea camerei cu id-ul: " + room.getId(), e);
             return false;
         }
     }
@@ -253,7 +264,7 @@ public class RoomRepository {
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
-            logger.error("Error deleting room with id: " + id, e);
+            logger.error("Eroare la ștergerea camerei cu id-ul: " + id, e);
             return false;
         }
     }
@@ -262,28 +273,27 @@ public class RoomRepository {
         List<String> types = new ArrayList<>();
 
         try {
-            DatabaseMetaData metaData = DBConnection.getConnection().getMetaData();
-            ResultSet columns = metaData.getColumns(null, null, "camera", "room_type");
+            String sql = "SELECT DISTINCT tip_camera FROM camera WHERE tip_camera IS NOT NULL ORDER BY tip_camera";
 
-            if (columns.next()) {
-                String sql = "SELECT DISTINCT room_type FROM camera ORDER BY room_type";
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql);
+                 ResultSet rs = stmt.executeQuery()) {
 
-                try (Connection conn = DBConnection.getConnection();
-                     PreparedStatement stmt = conn.prepareStatement(sql);
-                     ResultSet rs = stmt.executeQuery()) {
-
-                    while (rs.next()) {
-                        String type = rs.getString("room_type");
-                        if (type != null && !type.isEmpty()) {
-                            types.add(type);
-                        }
+                while (rs.next()) {
+                    String type = rs.getString("tip_camera");
+                    if (type != null && !type.isEmpty()) {
+                        types.add(type);
                     }
                 }
-            } else {
-                types.addAll(Arrays.asList("Single", "Double", "Twin", "Suite", "Deluxe"));
             }
         } catch (SQLException e) {
-            logger.error("Error fetching all room types", e);
+            logger.error("Eroare la obținerea tuturor tipurilor de camere", e);
+            // Tip-uri predefinite în caz de eroare
+            types.addAll(Arrays.asList("Single", "Double", "Twin", "Suite", "Deluxe"));
+        }
+
+        // Dacă nu s-au găsit tipuri în baza de date, adăugăm valori implicite
+        if (types.isEmpty()) {
             types.addAll(Arrays.asList("Single", "Double", "Twin", "Suite", "Deluxe"));
         }
 
@@ -294,36 +304,57 @@ public class RoomRepository {
         Room room = new Room();
         room.setId(rs.getLong("id"));
 
-        Long hotelId = rs.getLong("id_hotel");
-        if (!rs.wasNull()) {
-            room.setHotelId(hotelId);
-        }
-
-        room.setRoomNumber(rs.getString("nr_camera"));
-        room.setPricePerNight(rs.getDouble("pret_per_noapte"));
-
-        Long imageId = rs.getLong("id_poze");
-        if (!rs.wasNull()) {
-            room.setImageId(imageId);
-        }
-
-        // Get additional fields if they exist in the table
         try {
-            room.setAmenities(rs.getString("amenities"));
+            Long hotelId = rs.getLong("id_hotel");
+            if (!rs.wasNull()) {
+                room.setHotelId(hotelId);
+            }
         } catch (SQLException e) {
-            // Field might not exist in the database
+            // Câmpul ar putea să nu existe
         }
 
         try {
-            room.setRoomType(rs.getString("room_type"));
+            room.setRoomNumber(rs.getString("nr_camera"));
         } catch (SQLException e) {
-            // Field might not exist in the database
+            // Câmpul ar putea să nu existe
         }
 
         try {
-            room.setCapacity(rs.getInt("capacity"));
+            room.setPricePerNight(rs.getDouble("pret_per_noapte"));
         } catch (SQLException e) {
-            // Field might not exist in the database
+            // Câmpul ar putea să nu existe
+        }
+
+        try {
+            Long imageId = rs.getLong("id_poze");
+            if (!rs.wasNull()) {
+                room.setImageId(imageId);
+            }
+        } catch (SQLException e) {
+            // Câmpul ar putea să nu existe
+        }
+
+        try {
+            room.setAmenities(rs.getString("facilitati"));
+        } catch (SQLException e) {
+            // Câmpul ar putea să nu existe
+        }
+
+        try {
+            room.setRoomType(rs.getString("tip_camera"));
+        } catch (SQLException e) {
+            // Câmpul ar putea să nu existe
+        }
+
+        try {
+            // Actualizat: Folosim numele corect al coloanei: capacitate
+            int capacitate = rs.getInt("capacitate");
+            if (!rs.wasNull()) {
+                room.setCapacity(capacitate);
+            }
+        } catch (SQLException e) {
+            // Câmpul ar putea să nu existe
+            logger.debug("Câmpul capacitate nu a fost găsit în rezultatul interogării", e);
         }
 
         return room;

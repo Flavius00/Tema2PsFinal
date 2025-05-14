@@ -1,7 +1,7 @@
 package repository;
 
 import model.Chain;
-import org.example.DBConnection;
+import org.example.tema2ps.DBConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,16 +53,19 @@ public class ChainRepository {
     }
 
     public Long save(Chain chain) {
-        String sql = "INSERT INTO lant (nume) VALUES (?) RETURNING id";
+        // Modified to work with databases that don't support RETURNING
+        String sql = "INSERT INTO lant (nume) VALUES (?)";
+        String[] generatedColumns = {"id"};
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql, generatedColumns)) {
 
             stmt.setString(1, chain.getName());
+            stmt.executeUpdate();
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
-                    return rs.getLong("id");
+                    return rs.getLong(1);
                 }
             }
         } catch (SQLException e) {

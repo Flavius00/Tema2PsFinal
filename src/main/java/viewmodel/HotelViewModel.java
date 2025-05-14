@@ -5,6 +5,7 @@ import model.Hotel;
 import model.Location;
 import service.ChainService;
 import service.HotelService;
+import service.LocationService; // New import
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,6 +16,7 @@ import java.util.Optional;
 public class HotelViewModel {
     private final HotelService hotelService;
     private final ChainService chainService;
+    private final LocationService locationService; // New service
 
     private final ObservableList<Hotel> hotels = FXCollections.observableArrayList();
     private final ObjectProperty<Hotel> selectedHotel = new SimpleObjectProperty<>();
@@ -25,12 +27,9 @@ public class HotelViewModel {
     private final StringProperty email = new SimpleStringProperty("");
     private final StringProperty amenities = new SimpleStringProperty("");
 
-    // Location properties
-    private final LongProperty locationId = new SimpleLongProperty(0);
-    private final StringProperty country = new SimpleStringProperty("");
-    private final StringProperty city = new SimpleStringProperty("");
-    private final StringProperty street = new SimpleStringProperty("");
-    private final StringProperty number = new SimpleStringProperty("");
+    // Location as a selected object instead of individual fields
+    private final ObjectProperty<Location> selectedLocation = new SimpleObjectProperty<>();
+    private final ObservableList<Location> locations = FXCollections.observableArrayList();
 
     // Chain properties
     private final ObjectProperty<Chain> selectedChain = new SimpleObjectProperty<>();
@@ -42,8 +41,10 @@ public class HotelViewModel {
     public HotelViewModel() {
         this.hotelService = new HotelService();
         this.chainService = new ChainService();
+        this.locationService = new LocationService(); // Initialize location service
         loadHotels();
         loadChains();
+        loadLocations(); // Load locations from database
 
         // Bind the saveButton disabled state to name
         saveButtonDisabled.bind(name.isEmpty());
@@ -57,22 +58,24 @@ public class HotelViewModel {
                 email.set(newValue.getEmail());
                 amenities.set(newValue.getAmenities());
 
-                // Set location properties if available
+                // Set location if available
                 if (newValue.getLocation() != null) {
-                    Location location = newValue.getLocation();
-                    locationId.set(location.getId());
-                    country.set(location.getCountry());
-                    city.set(location.getCity());
-                    street.set(location.getStreet());
-                    number.set(location.getNumber());
+                    // Find matching location in our list
+                    for (Location location : locations) {
+                        if (location.getId().equals(newValue.getLocation().getId())) {
+                            selectedLocation.set(location);
+                            break;
+                        }
+                    }
                 } else {
-                    clearLocationFields();
+                    selectedLocation.set(null);
                 }
 
                 // Set chain if available
                 if (newValue.getChainId() != null) {
                     for (Chain chain : chains) {
-                        if (chain.getId().equals(newValue.getChainId())) {
+                        if (chain != null && chain.getId() != null &&
+                                chain.getId().equals(newValue.getChainId())) {
                             selectedChain.set(chain);
                             break;
                         }
@@ -92,7 +95,7 @@ public class HotelViewModel {
     }
 
     public void loadHotelsByChain(Chain chain) {
-        if (chain != null) {
+        if (chain != null && chain.getId() != null) {
             List<Hotel> hotelList = hotelService.getHotelsByChainId(chain.getId());
             hotels.setAll(hotelList);
         } else {
@@ -105,6 +108,12 @@ public class HotelViewModel {
         chains.setAll(chainList);
     }
 
+    // New method to load locations
+    public void loadLocations() {
+        List<Location> locationList = locationService.getAllLocations();
+        locations.setAll(locationList);
+    }
+
     public void saveHotel() {
         Hotel hotel = new Hotel();
         hotel.setName(name.get());
@@ -113,19 +122,14 @@ public class HotelViewModel {
         hotel.setAmenities(amenities.get());
 
         // Set chain ID if selected
-        if (selectedChain.get() != null) {
+        if (selectedChain.get() != null && selectedChain.get().getId() != null) {
             hotel.setChainId(selectedChain.get().getId());
         }
 
-        // Create location object
-        if (!city.get().isEmpty() || !country.get().isEmpty() || !street.get().isEmpty()) {
-            Location location = new Location();
-            location.setId(locationId.get() > 0 ? locationId.get() : null);
-            location.setCountry(country.get());
-            location.setCity(city.get());
-            location.setStreet(street.get());
-            location.setNumber(number.get());
-            hotel.setLocation(location);
+        // Set location if selected
+        if (selectedLocation.get() != null) {
+            hotel.setLocationId(selectedLocation.get().getId());
+            hotel.setLocation(selectedLocation.get());
         }
 
         boolean success;
@@ -162,17 +166,9 @@ public class HotelViewModel {
         phone.set("");
         email.set("");
         amenities.set("");
-        clearLocationFields();
+        selectedLocation.set(null);
         selectedChain.set(null);
         selectedHotel.set(null);
-    }
-
-    private void clearLocationFields() {
-        locationId.set(0);
-        country.set("");
-        city.set("");
-        street.set("");
-        number.set("");
     }
 
     // Getters for observable properties
@@ -204,24 +200,13 @@ public class HotelViewModel {
         return amenities;
     }
 
-    public LongProperty locationIdProperty() {
-        return locationId;
+    // New property for location
+    public ObjectProperty<Location> selectedLocationProperty() {
+        return selectedLocation;
     }
 
-    public StringProperty countryProperty() {
-        return country;
-    }
-
-    public StringProperty cityProperty() {
-        return city;
-    }
-
-    public StringProperty streetProperty() {
-        return street;
-    }
-
-    public StringProperty numberProperty() {
-        return number;
+    public ObservableList<Location> getLocations() {
+        return locations;
     }
 
     public ObjectProperty<Chain> selectedChainProperty() {
